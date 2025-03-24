@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pinjaman Calculator</title>
+    <style>
+      :root {
+        --primary: #3498db;
+        --secondary: #2ecc71;
+        --dark: #2c3e50;
+        --light: #ecf0f1;
+        --accent: #e74c3c;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .app-container {
+        width: 100%;
+        max-width: 800px;
+        background-color: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .header {
+        background: linear-gradient(135deg, var(--primary) 0%, #1a6ea3 100%);
+        color: white;
+        padding: 25px 30px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .header p {
+        margin: 5px 0 0;
+        opacity: 0.9;
+        font-size: 14px;
+      }
+
+      .greeting {
+        font-size: 24px;
+        font-weight: 300;
+        margin-bottom: 15px;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: #ffeb3b;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .input-group {
+        margin-bottom: 25px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+
+      .input-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      .input-prefix {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 6px 0 0 6px;
+        padding: 12px 15px;
+        color: #555;
+        font-weight: 500;
+      }
+
+      input[type="number"] {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: all 0.3s;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      }
+
+      button {
+        background: linear-gradient(135deg, var(--secondary) 0%, #27ae60 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        box-shadow: var(--shadow);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .result-container {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+        display: none;
+        animation: slideUp 0.5s ease-in-out;
+      }
+
+      .result-title {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 15px;
+        font-size: 18px;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 10px;
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .result-item:last-child {
+        border-bottom: none;
+      }
+
+      .result-label {
+        color: #555;
+        font-weight: 500;
+      }
+
+      .result-value {
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .highlight {
+        color: var(--accent);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary);
+        width: 30px;
+        height: 30px;
+        margin: 0 auto 15px;
+        animation: spin 1s linear infinite;
+      }
+
+      .debug-info {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 14px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .error-message {
+        color: var(--accent);
+        margin-top: 10px;
+        display: none;
+        font-size: 14px;
+      }
+
+      @media (max-width: 600px) {
+        .app-container {
+          border-radius: 0;
+          height: 100vh;
+        }
+
+        .content {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="header">
+        <h1>Pinjaman Calculator</h1>
+        <p>Hitung cicilan pinjaman Anda dengan mudah</p>
+        <div class="greeting">Hello, <span class="user-name" id="nasabahName">{{ nama_nasabah|default:"Fyio" }}</span>!</div>
+      </div>
+
+      <div class="content">
+        <div class="input-group">
+          <label for="jumlahPinjaman">Jumlah Pinjaman Baru</label>
+          <div class="input-container">
+            <div class="input-prefix">Rp</div>
+            <input type="number" id="jumlahPinjaman" min="0" placeholder="Masukkan jumlah pinjaman" />
+            <button id="applyButton">Apply</button>
+          </div>
+          <div class="error-message" id="errorMessage">Harap masukkan jumlah pinjaman yang valid</div>
+        </div>
+
+        <div class="loading" id="loadingIndicator">
+          <div class="spinner"></div>
+          <p>Menghitung pinjaman Anda...</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+          <div class="result-title">Detail Pinjaman</div>
+
+          <div class="result-item">
+            <div class="result-label">Tenor</div>
+            <div class="result-value"><span id="tenorValue">0</span> bulan</div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Cicilan per Bulan</div>
+            <div class="result-value">Rp <span id="cicilanValue" class="highlight">0</span></div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Fresh Money</div>
+            <div class="result-value">Rp <span id="freshMoneyValue">0</span></div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Bunga</div>
+            <div class="result-value"><span id="bungaValue">0</span>%</div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">KSM Sebelumnya</div>
+            <div class="result-value"><span id="ksmLama">0</span></div>
+          </div>
+          <div class="result-item">
+            <div class="result-label">Sisa Baki Debet</div>
+            <div class="result-value">Rp <span id="sisaBakiDebet">0</span></div>
+          </div>
+
+          <div class="result-item">
+            <div class="result-label">Cicilan Sebelumnya</div>
+            <div class="result-value">Rp <span id="cicilanSebelumnya">0</span></div>
+          </div>
+        </div>
+
+        <!-- Debug information section
+            <div class="debug-info">
+                <div>Debug Information:</div>
+                <div>userid: <span id="debug-userid">{{ userid|default:"Not set" }}</span></div>
+                <div>nama_nasabah: <span id="debug-nama-nasabah">{{ nama_nasabah|default:"Not set" }}</span></div>
+            </div>
+        -->
+      </div>
+    </div>
+
+    <script>
+      // Log context variables to console for debugging
+      console.log("Context variables:");
+      console.log("userid:", "{{ userid|escapejs }}");
+      console.log("nama_nasabah:", "{{ nama_nasabah|escapejs }}");
+
+      // Get Django context variables with fallbacks
+      const userid = "{{ userid|escapejs }}" || 19012003;
+
+      // Check if we have the required context
+      if (!userid || userid === "missing-userid") {
+        console.error("Missing required context: userid");
+        //document.getElementById("errorMessage").textContent = "Error: Missing userid in context";
+        document.getElementById("errorMessage").style.display = "block";
+      }
+
+      // Apply button click handler
+      document.getElementById("applyButton").addEventListener("click", function () {
+        const jumlahPinjaman = document.getElementById("jumlahPinjaman").value;
+
+        // Validate input
+        if (!jumlahPinjaman || isNaN(jumlahPinjaman) || jumlahPinjaman <= 0) {
+          document.getElementById("errorMessage").style.display = "block";
+          return;
+        }
+
+        document.getElementById("errorMessage").style.display = "none";
+        document.getElementById("loadingIndicator").style.display = "block";
+        document.getElementById("resultContainer").style.display = "none";
+
+        // Log the request we're about to make
+        const requestBody = {
+          userid: userid === null || userid === undefined ? 19012003 : userid,
+          input: parseInt(jumlahPinjaman),
+        };
+        console.log("Sending request:", requestBody);
+
+        // Send POST request
+        fetch("http://127.0.0.1:8000/count-ksm", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        })
+          .then((response) => {
+            console.log("Response status:", response.status);
+            if (!response.ok) {
+              throw new Error("Network response was not ok: " + response.status);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Log the response data
+            console.log("Response data:", data);
+
+            // Update UI with response data
+            document.getElementById("tenorValue").textContent = data.tenor;
+            document.getElementById("cicilanValue").textContent = formatNumber(data.cicilan_per_bulan);
+            document.getElementById("freshMoneyValue").textContent = formatNumber(data.fresh_money);
+            document.getElementById("bungaValue").textContent = data.bunga;
+            document.getElementById("ksmLama").textContent = formatNumber(data.KSM_sebelumnya);
+
+            // Show results and hide loading
+            document.getElementById("loadingIndicator").style.display = "none";
+            document.getElementById("resultContainer").style.display = "block";
+
+            // Add animation effect
+            document.getElementById("resultContainer").style.animation = "none";
+            setTimeout(() => {
+              document.getElementById("resultContainer").style.animation = "slideUp 0.5s ease-in-out";
+            }, 10);
+            document.getElementById("sisaBakiDebet").textContent = formatNumber(data.sisa_baki_debet);
+            document.getElementById("cicilanSebelumnya").textContent = formatNumber(data.cicilan_sebelumnya);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            document.getElementById("loadingIndicator").style.display = "none";
+            document.getElementById("errorMessage").textContent = "Terjadi kesalahan saat menghitung pinjaman: " + error.message;
+            document.getElementById("errorMessage").style.display = "block";
+          });
+      });
+
+      // Format number with thousand separator
+      function formatNumber(num) {
+        return new Intl.NumberFormat("id-ID").format(num);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Shortcut</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --background: #f8f9fa;
+            --text: #212529;
+            --gray-light: #e9ecef;
+            --gray: #adb5bd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            background-image: 
+                radial-gradient(#4361ee 1px, transparent 1px),
+                radial-gradient(#4361ee 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            background-attachment: fixed;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-top: 3px solid var(--primary);
+            border-left: 3px solid var(--primary);
+            top: 10px;
+            left: 10px;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            z-index: 2;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 10px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(67, 97, 238, 0.03) 10px,
+                rgba(67, 97, 238, 0.03) 20px
+            );
+            z-index: -1;
+            animation: moveBackground 30s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
+        }
+                
+        .upload-area:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--gray-light);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-bottom: none;
+        }
+
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            box-shadow: 0 0 10px rgba(67, 97, 238, 0.1);
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: rgba(248, 249, 250, 0.7);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--text);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--gray-light);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.active .notification {
+            transform: translateY(0);
+        }
+        
+        .notification-icon {
+            font-size: 3rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        
+        .notification-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        
+        .notification-message {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .confirmation-message {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        .format-currency {
+            text-align: center;
+        }
+
+        .header-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            background-color: var(--primary-dark);
+            z-index: 100;
+        }
+
+        .circuit-line {
+            height: 2px;
+            background-color: var(--primary-light);
+            flex-grow: 1;
+        }
+
+        .circuit-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+            margin: 0 10px;
+            position: relative;
+        }
+
+        .circuit-dot::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid var(--success);
+            opacity: 0.6;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.6; }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="/favicon.svg" type="image/x-icon">
+</head>
+<body>
+    <div class="header-decoration">
+        <div class="circuit-line"></div>
+        <div class="circuit-dot"></div>
+        <div class="circuit-line"></div>
+        <div class="circuit-dot"></div>
+        <div class="circuit-line"></div>
+    </div>
+    <div class="container" id="uploadContainer">
+        <h1 style="text-align: center; margin-bottom: 1.5rem;">Phone Number Whatsapp Blaster</h1>
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-file-excel upload-icon"></i>
+            <h3 class="upload-text">Click or drag to upload Excel file</h3>
+            <p>Only .xlsx files are supported</p>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx">
+        </div>
+    </div>
+
+    <div class="container" id="resultContainer" style="display: none;">
+        <h1 style="text-align: center; margin-bottom: 1.5rem;">Uploaded Data</h1>
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="confirmation-message">
+            <h3>Are you sure this is the right data?</h3>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-outline" id="cancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmBtn">Confirm</button>
+        </div>
+    </div>
+
+    <div class="container loading-container" id="loadingContainer">
+        <div class="spinner"></div>
+        <p>Processing your data...</p>
+    </div>
+
+    <div class="overlay" id="notificationOverlay">
+        <div class="notification">
+            <i class="fas fa-check-circle notification-icon"></i>
+            <h3 class="notification-title">Success!</h3>
+            <p class="notification-message" id="notificationMessage"></p>
+            <button class="btn btn-primary" id="closeNotificationBtn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // 0 docs architecture
+        const uploadContainer = document.getElementById('uploadContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const tableHeader = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('tableBody');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const closeNotificationBtn = document.getElementById('closeNotificationBtn');
+        let responseData = null;
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileUpload);
+        cancelBtn.addEventListener('click', resetForm);
+        confirmBtn.addEventListener('click', confirmData);
+        closeNotificationBtn.addEventListener('click', closeNotification);
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+            uploadArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--gray)';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--gray)';
+            uploadArea.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.xlsx')) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileUpload();
+            } else {
+                showNotification('Error: Only .xlsx files are allowed.');
+            }
+        });
+
+        function showLoading() {
+            uploadContainer.style.display = 'none';
+            resultContainer.style.display = 'none';
+            loadingContainer.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingContainer.style.display = 'none';
+        }
+
+        async function handleFileUpload() {
+            if (!fileInput.files.length) return;
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.xlsx')) {
+                showNotification('Error: Only .xlsx files are allowed.');
+                return;
+            }
+            try {
+                showLoading();
+                const formData = new FormData();
+                formData.append('file', file);
+                const response = await fetch('http://127.0.0.1:8000/main', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    responseData = result.data;
+                    renderTable(result.data);
+                    hideLoading();
+                    resultContainer.style.display = 'block';
+                } else {
+                    hideLoading();
+                    uploadContainer.style.display = 'block';
+                    showNotification('Error: ' + (result.message || 'Failed to process the file.'));
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                hideLoading();
+                uploadContainer.style.display = 'block';
+                showNotification('Error: Failed to connect to the server.');
+            }
+        }
+
+        function renderTable(data) {
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+            const columns = Object.keys(data);
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = formatColumnName(column);
+                tableHeader.appendChild(th);
+            });
+            const rowCount = data[columns[0]].length;
+            for (let i = 0; i < rowCount; i++) {
+                const row = document.createElement('tr');
+                columns.forEach(column => {
+                    const td = document.createElement('td');
+                    let value = data[column][i];
+                    if (column === 'limit_indikatif') {
+                        td.textContent = formatCurrency(value);
+                        td.className = 'format-currency';
+                    } else if (column === 'mobile_phone') {
+                        td.textContent = formatPhoneNumber(value);
+                    } else {
+                        td.textContent = value;
+                    } 
+                    row.appendChild(td);
+                });
+                tableBody.appendChild(row);
+            }
+        }
+
+        function formatPhoneNumber(number) {
+            const phoneStr = String(number);
+            if (phoneStr.startsWith('62')) {
+                return '+' + phoneStr;
+            } else {
+                return phoneStr;
+            }
+        }
+
+        function formatColumnName(name) {
+            return name.split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('id-ID').format(value);
+        }
+
+        function resetForm() {
+            resultContainer.style.display = 'none';
+            uploadContainer.style.display = 'block';
+            fileInput.value = '';
+            responseData = null;
+        }
+
+        async function confirmData() {
+            if (!responseData) return;
+            try {
+                showLoading();
+                const response = await fetch('http://127.0.0.1:8000/start-message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(responseData)
+                });
+                const result = await response.json();
+                hideLoading();
+                resetForm();
+                if (result.success) {
+                    showNotification(result.message || 'Data processed successfully!');
+                } else {
+                    showNotification('Error: ' + (result.message || 'Failed to process the data.'));
+                }
+            } catch (error) {
+                console.error('Error confirming data:', error);
+                hideLoading();
+                resetForm();
+                showNotification('Error: Failed to connect to the server.');
+            }
+        }
+
+        function showNotification(message) {
+            notificationMessage.textContent = message;
+            notificationOverlay.classList.add('active');
+        }
+
+        function closeNotification() {
+            notificationOverlay.classList.remove('active');
+        }
+    </script>
+</body>
+</html>

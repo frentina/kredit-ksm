@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access Portal</title>
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #0072ff;
+            --dark: #121212;
+            --light: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, rgba(0,0,0,0.9) 0%, rgba(20,20,40,0.9) 100%);
+        }
+        
+        .grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: linear-gradient(var(--primary) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--primary) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.1;
+            transform: perspective(500px) rotateX(60deg);
+            animation: grid-move 15s linear infinite;
+        }
+        
+        @keyframes grid-move {
+            0% {
+                transform: perspective(500px) rotateX(60deg) translateY(0);
+            }
+            100% {
+                transform: perspective(500px) rotateX(60deg) translateY(40px);
+            }
+        }
+        
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--primary);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            50% {
+                transform: translateY(-10px) translateX(-10px);
+            }
+            75% {
+                transform: translateY(-30px) translateX(5px);
+            }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 400px;
+            width: 100%;
+            padding: 30px;
+            background: rgba(25, 25, 35, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, var(--primary), transparent);
+            transform: rotate(45deg);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .container h1 {
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 40px;
+            color: var(--light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        
+        .container h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            width: 50px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 15px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 16px;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.3);
+        }
+        
+        .input-field::-webkit-inner-spin-button, 
+        .input-field::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        .input-field[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        .input-label {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            font-size: 14px;
+            color: var(--primary);
+            background: rgba(25, 25, 35, 0.8);
+            padding: 0 8px;
+            border-radius: 5px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--light);
+            opacity: 0.7;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+            font-size: 16px;
+        }
+        
+        .password-toggle:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 10px;
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 114, 255, 0.3);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(0, 114, 255, 0.2);
+        }
+        
+        .scanner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            animation: scan 3s ease-in-out infinite;
+        }
+        
+        @keyframes scan {
+            0%, 100% {
+                top: 0;
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.8;
+            }
+            50% {
+                top: 100%;
+            }
+        }
+        
+        .error-message {
+            padding: 10px;
+            margin-top: 15px;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 8px;
+            color: #ff6b6b;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .loading.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 240, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="grid"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="scanner"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+        </div>
+        <h1>Secure Access</h1>
+        <form id="loginForm" method="POST" action="http://127.0.0.1:8000/login">
+            <div class="input-group">
+                <label for="userid" class="input-label">User ID</label>
+                <input type="number" id="userid" name="userid" class="input-field" placeholder="Enter your ID number" required>
+                <button type="button" class="password-toggle" id="toggleVisibility">
+                    <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg id="eyeSlashIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+            <button type="submit" class="login-btn">Access System</button>
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+    </div>
+
+    <script>
+        // Create particles
+        const particles = document.getElementById('particles');
+        const particleCount = 20;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            const size = Math.random() * 6 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            particle.style.animationDelay = `${Math.random() * 10}s`;
+            particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+            
+            particles.appendChild(particle);
+        }
+        
+        // Toggle password visibility
+        const toggleVisibility = document.getElementById('toggleVisibility');
+        const useridInput = document.getElementById('userid');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        toggleVisibility.addEventListener('click', function() {
+            const type = useridInput.type === 'password' ? 'number' : 'password';
+            useridInput.type = type;
+            
+            if (type === 'password') {
+                eyeIcon.style.display = 'none';
+                eyeSlashIcon.style.display = 'block';
+            } else {
+                eyeIcon.style.display = 'block';
+                eyeSlashIcon.style.display = 'none';
+            }
+        });
+        
+        // Handle form submission
+        const loginForm = document.getElementById('loginForm');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userid = useridInput.value;
+            loading.classList.add('active');
+            errorMessage.style.display = 'none';
+            
+            fetch('http://127.0.0.1:8000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: userid }),
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error('Server error: ' + response.status);
+                }
+            })
+            .then(data => {
+                if (data.success === true && data.userid) {
+                    // Use the returned userid value for the GET request
+                    return fetch(`http://127.0.0.1:8000/count-ksm`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ userid: data.userid })
+                    })
+                    .then(() => {
+                        window.location.href = 'http://127.0.0.1:8000/count-ksm';
+                    });
+                } else {
+                    throw new Error('Login failed: Invalid response');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessage.textContent = error.message || 'Authentication failed. Please try again.';
+                errorMessage.style.display = 'block';
+                loading.classList.remove('active');
+            });
+        });
+        
+        // Add keyboard support for form submission
+        useridInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Initialize input as number type
+        useridInput.type = 'number';
+    </script>
+</body>
+</html>
